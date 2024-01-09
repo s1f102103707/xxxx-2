@@ -1,4 +1,4 @@
-import type { UserModel } from '$/api/@types/models';
+import type { UserModel } from '$/api/@types';
 
 export type JwtUser = { sub: string; email: string; role: 'authenticated' | 'anon' };
 
@@ -8,7 +8,7 @@ export const userModel = {
       id: jwtUser.sub,
       email: jwtUser.email,
       name: jwtUser.sub.split('-')[0],
-      createdTime: Date.now(),
+      createdAt: new Date(),
     };
   },
 };
