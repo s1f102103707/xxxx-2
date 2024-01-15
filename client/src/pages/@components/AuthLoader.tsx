@@ -9,7 +9,7 @@ export const AuthLoader = () => {
   const [user, setUser] = useAtom(userAtom);
 
   useEffect(() => {
-    const handleAuthStateChange = async (_, session) => {
+    const handleAuthStateChange = async (event: string, session: any) => {
       if (!session) {
         if (user) {
           await apiClient.api.private.users._userId(user.id).$delete().catch(returnNull);
@@ -23,16 +23,13 @@ export const AuthLoader = () => {
       }
     };
 
-    const updateUser = async (session) => {
+    const updateUser = async (session: any) => {
       const { id, email, user_metadata } = session.user;
       await apiClient.api.private.users
         ._userId(id)
         .$put({ body: { email, name: user_metadata.full_name } })
         .catch(returnNull);
-      const updatedUser = await apiClient.api.private.users
-        ._userId(id)
-        .$get()
-        .catch(returnNull);
+      const updatedUser = await apiClient.api.private.users._userId(id).$get().catch(returnNull);
       setUser(updatedUser);
     };
 
