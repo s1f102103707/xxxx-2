@@ -26,7 +26,7 @@ export const AuthLoader = () => {
       const { id, email, user_metadata } = session.user;
       await apiClient.api.private.users
         ._userId(id)
-        .$put({ body: { email: email, name: user_metadata.full_name } })
+        .$put({ body: { email, name: user_metadata.full_name } })
         .catch(returnNull);
       const updatedUser = await apiClient.api.private.users
         ._userId(id)
