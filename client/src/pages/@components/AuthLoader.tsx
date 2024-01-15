@@ -10,15 +10,16 @@ export const AuthLoader = () => {
 
   useEffect(() => {
     const handleAuthStateChange = async (_, session) => {
-      if (session === null) {
-        if (user && user.id !== null) {
+      if (!session) {
+        if (user) {
           await apiClient.api.private.users._userId(user.id).$delete().catch(returnNull);
           setUser(null);
         }
-      } else {
-        if (user && user.id !== session.user.id) {
-          await updateUser(session);
-        }
+        return;
+      }
+
+      if (!user || user.id !== session.user.id) {
+        await updateUser(session);
       }
     };
 
