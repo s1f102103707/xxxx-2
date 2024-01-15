@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { BasicHeader } from 'src/pages/@components/BasicHeader/BasicHeader';
 import { apiClient } from 'src/utils/apiClient';
+import { User } from '$/api/@types';
 import { userAtom } from '../atoms/user';
 import styles from './index.module.css';
 
