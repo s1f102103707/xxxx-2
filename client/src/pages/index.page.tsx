@@ -7,24 +7,24 @@ import styles from './index.module.css';
 
 const Home = () => {
   const [user] = useAtom(userAtom);
-  const [teams, setTeams] = useState<TeamModel[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
-  const fetchTeams = async () => {
-    const fetchedTeams = await apiClient.api.public.teams.$get();
-    setTeams(fetchedTeams);
+  const fetchUsers = async () => {
+    const fetchedUsers = await apiClient.api.public.users.$get();
+    setUsers(fetchedUsers);
   };
 
   useEffect(() => {
-    fetchTeams();
+    fetchUsers();
   }, []);
 
   return (
     <>
       <BasicHeader user={user} />
       <div className={styles.container}>
-        <ul className={styles.teams}>
-          {teams.map((team) => (
-            <li key={team.id}>{team.name}</li>
+        <ul className={styles.users}>
+          {users.map((user) => (
+            <li key={user.id}>{user.name}</li>
           ))}
         </ul>
       </div>
