@@ -13,11 +13,13 @@ export const AuthLoader = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_, session) => {
       if (session === null && user?.id !== null) {
-        await apiClient.api.private.me.$delete().catch(returnNull);
+        await apiClient.api.private.users._userId(user.id).$delete().catch(returnNull);
         setUser(null);
       } else if (session !== null && user?.id !== session.user.id) {
-        await apiClient.api.private.me.$post({ body: { jwt: session?.access_token } }).catch(returnNull);
-        await apiClient.api.private.me.$get().catch(returnNull).then(setUser);
+        await apiClient.api.private.users._userId(session.user.id)
+          .$put({ body: { jwt: session?.access_token } })
+          .catch(returnNull);
+        await apiClient.api.private.users._userId(session.user.id).$get().catch(returnNull).then(setUser);
       }
     });
 
