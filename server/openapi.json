@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Baseball-like Web Service API",
+    "title": "Sample Web Service API",
     "version": "1.0.0",
-    "description": "API for a web service that provides functionality similar to managing a baseball team and player statistics."
+    "description": "This is a sample API for a web service that manages users."
   },
   "servers": [
     {
@@ -11,18 +11,19 @@
     }
   ],
   "paths": {
-    "/api/public/teams": {
+    "/api/public/users": {
       "get": {
-        "summary": "Get a list of all teams",
+        "summary": "List all users",
+        "operationId": "listUsers",
         "responses": {
           "200": {
-            "description": "A list of teams",
+            "description": "An array of users",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Team"
+                    "$ref": "#/components/schemas/User"
                   }
                 }
               }
@@ -31,170 +32,24 @@
         }
       }
     },
-    "/api/public/teams/{teamId}": {
-      "get": {
-        "summary": "Get a team by ID",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A team object",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Team"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Team not found"
-          }
-        }
-      }
-    },
-    "/api/private/teams": {
+    "/api/private/users": {
       "post": {
-        "summary": "Create a new team",
+        "summary": "Create a new user",
+        "operationId": "createUser",
         "requestBody": {
+          "description": "User to be created",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TeamCreateInput"
+                "$ref": "#/components/schemas/UserCreate"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Team created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Team"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/private/teams/{teamId}": {
-      "put": {
-        "summary": "Update a team by ID",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TeamUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Team updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Team"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Team not found"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete a team by ID",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Team deleted"
-          },
-          "404": {
-            "description": "Team not found"
-          }
-        }
-      }
-    },
-    "/api/private/teams/{teamId}/stats": {
-      "get": {
-        "summary": "Get team statistics by team ID",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Team statistics",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TeamStat"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Team not found"
-          }
-        }
-      }
-    },
-    "/api/private/players": {
-      "post": {
-        "summary": "Create a new player",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PlayerCreateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Player created",
+            "description": "User created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -206,12 +61,39 @@
         }
       }
     },
-    "/api/private/players/{playerId}": {
-      "put": {
-        "summary": "Update a player by ID",
+    "/api/private/users/{userId}": {
+      "get": {
+        "summary": "Get a user by ID",
+        "operationId": "getUserById",
         "parameters": [
           {
-            "name": "playerId",
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a user by ID",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -220,18 +102,19 @@
           }
         ],
         "requestBody": {
+          "description": "User data to update",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PlayerUpdateInput"
+                "$ref": "#/components/schemas/UserUpdate"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Player updated",
+            "description": "User updated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -239,17 +122,15 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Player not found"
           }
         }
       },
       "delete": {
-        "summary": "Delete a player by ID",
+        "summary": "Delete a user by ID",
+        "operationId": "deleteUser",
         "parameters": [
           {
-            "name": "playerId",
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -259,40 +140,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Player deleted"
-          },
-          "404": {
-            "description": "Player not found"
-          }
-        }
-      }
-    },
-    "/api/private/players/{playerId}/stats": {
-      "get": {
-        "summary": "Get player statistics by player ID",
-        "parameters": [
-          {
-            "name": "playerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Player statistics",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerStat"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Player not found"
+            "description": "User deleted successfully"
           }
         }
       }
@@ -304,10 +152,12 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "name": {
             "type": "string"
@@ -319,106 +169,12 @@
           "name"
         ]
       },
-      "Team": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "PlayerStat": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "battingAverage": {
-            "type": "number"
-          },
-          "homeRuns": {
-            "type": "integer"
-          },
-          "runsBattedIn": {
-            "type": "integer"
-          },
-          "stolenBases": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "userId",
-          "battingAverage",
-          "homeRuns",
-          "runsBattedIn",
-          "stolenBases"
-        ]
-      },
-      "TeamStat": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "teamId": {
-            "type": "string"
-          },
-          "wins": {
-            "type": "integer"
-          },
-          "losses": {
-            "type": "integer"
-          },
-          "ties": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "teamId",
-          "wins",
-          "losses",
-          "ties"
-        ]
-      },
-      "TeamCreateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
-      "TeamUpdateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
-      "PlayerCreateInput": {
+      "UserCreate": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "name": {
             "type": "string"
@@ -429,20 +185,17 @@
           "name"
         ]
       },
-      "PlayerUpdateInput": {
+      "UserUpdate": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "name": {
             "type": "string"
           }
-        },
-        "required": [
-          "email",
-          "name"
-        ]
+        }
       }
     }
   }
