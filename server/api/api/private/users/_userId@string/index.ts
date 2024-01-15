@@ -1,22 +1,22 @@
 /* eslint-disable */
-import type * as Types from '../../../../@types'
+import type * as Types from '../../../../@types';
 
 export type Methods = {
   get: {
-    status: 200
+    status: 200;
     /** User details */
-    resBody: Types.User
-  }
+    resBody: Types.User;
+  };
 
   put: {
-    status: 200
+    status: 200;
     /** User updated successfully */
-    resBody: Types.User
+    resBody: Types.User;
     /** User data to update */
-    reqBody: Types.UserUpdate
-  }
+    reqBody: Types.UserUpdate;
+  };
 
   delete: {
-    status: 204
-  }
-}
+    status: 204;
+  };
+};
