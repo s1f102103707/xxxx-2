@@ -90,5 +90,109 @@
   {
     "source": "server/domain/useCase/taskUseCase.ts",
     "content": "import type { TaskModel, UserModel } from '$/api/@types/models';\nimport { taskModel } from '$/domain/model/taskModel';\nimport { s3Repo } from '$/domain/repository/s3Repo';\nimport { taskRepo } from '$/domain/repository/taskRepo';\nimport { transaction } from '$/service/prismaClient';\nimport type { MultipartFile } from '@fastify/multipart';\n\nexport const taskUseCase = {\n  create: (user: UserModel, label: string, image: MultipartFile | undefined) =>\n    transaction<TaskModel>('RepeatableRead', async (tx) => {\n      const task = taskModel.create(user, label, image);\n\n      if (image !== undefined && task.image !== undefined) {\n        await s3Repo.save(task.image.s3Key, image);\n      }\n\n      await taskRepo.save(tx, task);\n\n      return task;\n    }),\n  delete: (user: UserModel, taskId: string) =>\n    transaction('RepeatableRead', async (tx) => {\n      const task = await taskRepo.findByIdOrThrow(tx, taskId);\n      const deletableTaskId = taskModel.deleteOrThrow(user, task);\n\n      await taskRepo.delete(tx, deletableTaskId);\n    }),\n  update: (user: UserModel, taskId: string, done: boolean, label: string) =>\n    transaction<TaskModel>('RepeatableRead', async (tx) => {\n      const task = await taskRepo.findByIdOrThrow(tx, taskId);\n      const newTask = taskModel.updateOrThrow(user, task, { done, label });\n\n      await taskRepo.save(tx, newTask);\n\n      return newTask;\n    }),\n};\n"
+  },
+  {
+    "source": "server/api/$api.ts",
+    "content": "import type { AspidaClient, BasicHeaders } from 'aspida';\nimport type { Methods as Methods_ya4k83 } from './api/private/players';\nimport type { Methods as Methods_1cpffbq } from './api/private/players/_playerId@string';\nimport type { Methods as Methods_7gju6e } from './api/private/players/_playerId@string/stats';\nimport type { Methods as Methods_1glhn3f } from './api/private/teams';\nimport type { Methods as Methods_tea9u2 } from './api/private/teams/_teamId@string';\nimport type { Methods as Methods_1x2cg9e } from './api/private/teams/_teamId@string/stats';\nimport type { Methods as Methods_4f3q6j } from './api/public/teams';\nimport type { Methods as Methods_8fle7e } from './api/public/teams/_teamId@string';\n\nconst api = <T>({ baseURL, fetch }: AspidaClient<T>) => {\n  const prefix = (baseURL === undefined ? 'http://localhost:3000' : baseURL).replace(/\\/$/, '');\n  const PATH0 = '/api/private/players';\n  const PATH1 = '/stats';\n  const PATH2 = '/api/private/teams';\n  const PATH3 = '/api/public/teams';\n  const GET = 'GET';\n  const POST = 'POST';\n  const PUT = 'PUT';\n  const DELETE = 'DELETE';\n\n  return {\n    api: {\n      private: {\n        players: {\n          _playerId: (val3: string) => {\n            const prefix3 = `${PATH0}/${val3}`;\n\n            return {\n              stats: {\n                /**\n                 * @returns Player statistics\n                 */\n                get: (option?: { config?: T | undefined } | undefined) =>\n                  fetch<Methods_7gju6e['get']['resBody'], BasicHeaders, Methods_7gju6e['get']['status']>(prefix, `${prefix3}${PATH1}`, GET, option).json(),\n                /**\n                 * @returns Player statistics\n                 */\n                $get: (option?: { config?: T | undefined } | undefined) =>\n                  fetch<Methods_7gju6e['get']['resBody'], BasicHeaders, Methods_7gju6e['get']['status']>(prefix, `${prefix3}${PATH1}`, GET, option).json().then(r => r.body),\n                $path: () => `${prefix}${prefix3}${PATH1}`,\n              },\n              /**\n               * @returns Player updated\n               */\n              put: (option: { body: Methods_1cpffbq['put']['reqBody'], config?: T | undefined }) =>\n                fetch<Methods_1cpffbq['put']['resBody'], BasicHeaders, Methods_1cpffbq['put']['status']>(prefix, prefix3, PUT, option).json(),\n              /**\n               * @returns Player updated\n               */\n              $put: (option: { body: Methods_1cpffbq['put']['reqBody'], config?: T | undefined }) =>\n                fetch<Methods_1cpffbq['put']['resBody'], BasicHeaders, Methods_1cpffbq['put']['status']>(prefix, prefix3, PUT, option).json().then(r => r.body),\n              delete: (option?: { config?: T | undefined } | undefined) =>\n                fetch<void, BasicHeaders, Methods_1cpffbq['delete']['status']>(prefix, prefix3, DELETE, option).send(),\n              $delete: (option?: { config?: T | undefined } | undefined) =>\n                fetch<void, BasicHeaders, Methods_1cpffbq['delete']['status']>(prefix, prefix3, DELETE, option).send().then(r => r.body),\n              $path: () => `${prefix}${prefix3}`,\n            };\n          },\n          /**\n           * @returns Player created\n           */\n          post: (option: { body: Methods_ya4k83['post']['reqBody'], config?: T | undefined }) =>\n            fetch<Methods_ya4k83['post']['resBody'], BasicHeaders, Methods_ya4k83['post']['status']>(prefix, PATH0, POST, option).json(),\n          /**\n           * @returns Player created\n           */\n          $post: (option: { body: Methods_ya4k83['post']['reqBody'], config?: T | undefined }) =>\n            fetch<Methods_ya4k83['post']['resBody'], BasicHeaders, Methods_ya4k83['post']['status']>(prefix, PATH0, POST, option).json().then(r => r.body),\n          $path: () => `${prefix}${PATH0}`,\n        },\n        teams: {\n          _teamId: (val3: string) => {\n            const prefix3 = `${PATH2}/${val3}`;\n\n            return {\n              stats: {\n                /**\n                 * @returns Team statistics\n                 */\n                get: (option?: { config?: T | undefined } | undefined) =>\n                  fetch<Methods_1x2cg9e['get']['resBody'], BasicHeaders, Methods_1x2cg9e['get']['status']>(prefix, `${prefix3}${PATH1}`, GET, option).json(),\n                /**\n                 * @returns Team statistics\n                 */\n                $get: (option?: { config?: T | undefined } | undefined) =>\n                  fetch<Methods_1x2cg9e['get']['resBody'], BasicHeaders, Methods_1x2cg9e['get']['status']>(prefix, `${prefix3}${PATH1}`, GET, option).json().then(r => r.body),\n                $path: () => `${prefix}${prefix3}${PATH1}`,\n              },\n              /**\n               * @returns Team updated\n               */\n              put: (option: { body: Methods_tea9u2['put']['reqBody'], config?: T | undefined }) =>\n                fetch<Methods_tea9u2['put']['resBody'], BasicHeaders, Methods_tea9u2['put']['status']>(prefix, prefix3, PUT, option).json(),\n              /**\n               * @returns Team updated\n               */\n              $put: (option: { body: Methods_tea9u2['put']['reqBody'], config?: T | undefined }) =>\n                fetch<Methods_tea9u2['put']['resBody'], BasicHeaders, Methods_tea9u2['put']['status']>(prefix, prefix3, PUT, option).json().then(r => r.body),\n              delete: (option?: { config?: T | undefined } | undefined) =>\n                fetch<void, BasicHeaders, Methods_tea9u2['delete']['status']>(prefix, prefix3, DELETE, option).send(),\n              $delete: (option?: { config?: T | undefined } | undefined) =>\n                fetch<void, BasicHeaders, Methods_tea9u2['delete']['status']>(prefix, prefix3, DELETE, option).send().then(r => r.body),\n              $path: () => `${prefix}${prefix3}`,\n            };\n          },\n          /**\n           * @returns Team created\n           */\n          post: (option: { body: Methods_1glhn3f['post']['reqBody'], config?: T | undefined }) =>\n            fetch<Methods_1glhn3f['post']['resBody'], BasicHeaders, Methods_1glhn3f['post']['status']>(prefix, PATH2, POST, option).json(),\n          /**\n           * @returns Team created\n           */\n          $post: (option: { body: Methods_1glhn3f['post']['reqBody'], config?: T | undefined }) =>\n            fetch<Methods_1glhn3f['post']['resBody'], BasicHeaders, Methods_1glhn3f['post']['status']>(prefix, PATH2, POST, option).json().then(r => r.body),\n          $path: () => `${prefix}${PATH2}`,\n        },\n      },\n      public: {\n        teams: {\n          _teamId: (val3: string) => {\n            const prefix3 = `${PATH3}/${val3}`;\n\n            return {\n              /**\n               * @returns A team object\n               */\n              get: (option?: { config?: T | undefined } | undefined) =>\n                fetch<Methods_8fle7e['get']['resBody'], BasicHeaders, Methods_8fle7e['get']['status']>(prefix, prefix3, GET, option).json(),\n              /**\n               * @returns A team object\n               */\n              $get: (option?: { config?: T | undefined } | undefined) =>\n                fetch<Methods_8fle7e['get']['resBody'], BasicHeaders, Methods_8fle7e['get']['status']>(prefix, prefix3, GET, option).json().then(r => r.body),\n              $path: () => `${prefix}${prefix3}`,\n            };\n          },\n          /**\n           * @returns A list of teams\n           */\n          get: (option?: { config?: T | undefined } | undefined) =>\n            fetch<Methods_4f3q6j['get']['resBody'], BasicHeaders, Methods_4f3q6j['get']['status']>(prefix, PATH3, GET, option).json(),\n          /**\n           * @returns A list of teams\n           */\n          $get: (option?: { config?: T | undefined } | undefined) =>\n            fetch<Methods_4f3q6j['get']['resBody'], BasicHeaders, Methods_4f3q6j['get']['status']>(prefix, PATH3, GET, option).json().then(r => r.body),\n          $path: () => `${prefix}${PATH3}`,\n        },\n      },\n    },\n  };\n};\n\nexport type ApiInstance = ReturnType<typeof api>;\nexport default api;\n"
+  },
+  {
+    "source": "server/api/@types/index.ts",
+    "content": "/* eslint-disable */\nexport type User = {\n  id: string\n  email: string\n  name: string\n}\n\nexport type Team = {\n  id: string\n  name: string\n}\n\nexport type PlayerStat = {\n  id: string\n  userId: string\n  battingAverage: number\n  homeRuns: number\n  runsBattedIn: number\n  stolenBases: number\n}\n\nexport type TeamStat = {\n  id: string\n  teamId: string\n  wins: number\n  losses: number\n  ties: number\n}\n\nexport type TeamCreateInput = {\n  name: string\n}\n\nexport type TeamUpdateInput = {\n  name: string\n}\n\nexport type PlayerCreateInput = {\n  email: string\n  name: string\n}\n\nexport type PlayerUpdateInput = {\n  email: string\n  name: string\n}\n"
+  },
+  {
+    "source": "server/api/api/private/players/_playerId@string/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../../@types'\n\nexport type Methods = {\n  put: {\n    status: 200\n    /** Player updated */\n    resBody: Types.User\n    reqBody: Types.PlayerUpdateInput\n  }\n\n  delete: {\n    status: 204\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/private/players/_playerId@string/stats/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../../../@types'\n\nexport type Methods = {\n  get: {\n    status: 200\n    /** Player statistics */\n    resBody: Types.PlayerStat\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/private/players/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../@types'\n\nexport type Methods = {\n  post: {\n    status: 201\n    /** Player created */\n    resBody: Types.User\n    reqBody: Types.PlayerCreateInput\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/private/teams/_teamId@string/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../../@types'\n\nexport type Methods = {\n  put: {\n    status: 200\n    /** Team updated */\n    resBody: Types.Team\n    reqBody: Types.TeamUpdateInput\n  }\n\n  delete: {\n    status: 204\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/private/teams/_teamId@string/stats/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../../../@types'\n\nexport type Methods = {\n  get: {\n    status: 200\n    /** Team statistics */\n    resBody: Types.TeamStat\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/private/teams/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../@types'\n\nexport type Methods = {\n  post: {\n    status: 201\n    /** Team created */\n    resBody: Types.Team\n    reqBody: Types.TeamCreateInput\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/public/teams/_teamId@string/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../../@types'\n\nexport type Methods = {\n  get: {\n    status: 200\n    /** A team object */\n    resBody: Types.Team\n  }\n}\n"
+  },
+  {
+    "source": "server/api/api/public/teams/index.ts",
+    "content": "/* eslint-disable */\nimport type * as Types from '../../../@types'\n\nexport type Methods = {\n  get: {\n    status: 200\n    /** A list of teams */\n    resBody: Types.Team[]\n  }\n}\n"
+  },
+  {
+    "source": "server/api/private/players/_playerId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\nimport type { PlayerUpdateInput } from '$/api/@types';\n\nexport default defineController(() => ({\n  put: async ({ params, body }) => {\n    const player = await prismaClient.user.update({\n      where: { id: params.playerId },\n      data: {\n        email: body.email,\n        name: body.name\n      }\n    });\n    return { status: 200, body: player };\n  },\n  delete: async ({ params }) => {\n    await prismaClient.user.delete({\n      where: { id: params.playerId }\n    });\n    return { status: 204 };\n  }\n}));\n"
+  },
+  {
+    "source": "server/api/private/players/_playerId@string/stats/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const playerStats = await prismaClient.playerStats.findUniqueOrThrow({\n      where: { userId: params.playerId },\n    });\n    return { status: 200, body: playerStats };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/players/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  post: async ({ body }) => {\n    const player = await prismaClient.user.create({\n      data: {\n        email: body.email,\n        name: body.name,\n      },\n    });\n    return { status: 201, body: player };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/_teamId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  put: async ({ params, body }) => {\n    const team = await prismaClient.team.update({\n      where: { id: params.teamId },\n      data: {\n        name: body.name,\n      },\n    });\n    return { status: 200, body: team };\n  },\n  delete: async ({ params }) => {\n    await prismaClient.team.delete({\n      where: { id: params.teamId },\n    });\n    return { status: 204 };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/_teamId@string/stats/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const teamStats = await prismaClient.teamStats.findUniqueOrThrow({\n      where: { teamId: params.teamId },\n    });\n    return { status: 200, body: teamStats };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  post: async ({ body }) => {\n    const team = await prismaClient.team.create({\n      data: {\n        name: body.name,\n      },\n    });\n    return { status: 201, body: team };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/public/teams/_teamId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const team = await prismaClient.team.findUniqueOrThrow({\n      where: { id: params.teamId },\n    });\n    return { status: 200, body: team };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/public/teams/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async () => {\n    const teams = await prismaClient.team.findMany();\n    return { status: 200, body: teams };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/players/_playerId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\nimport type { PlayerUpdateInput } from '$/api/@types';\n\nexport default defineController(() => ({\n  put: async ({ params, body }) => {\n    const player = await prismaClient.user.update({\n      where: { id: params.playerId },\n      data: {\n        email: body.email,\n        name: body.name\n      }\n    });\n    return { status: 200, body: player };\n  },\n  delete: async ({ params }) => {\n    await prismaClient.user.delete({\n      where: { id: params.playerId }\n    });\n    return { status: 204 };\n  }\n}));\n"
+  },
+  {
+    "source": "server/api/private/players/_playerId@string/stats/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const playerStats = await prismaClient.playerStats.findUniqueOrThrow({\n      where: { userId: params.playerId },\n    });\n    return { status: 200, body: playerStats };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/players/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  post: async ({ body }) => {\n    const player = await prismaClient.user.create({\n      data: {\n        email: body.email,\n        name: body.name,\n      },\n    });\n    return { status: 201, body: player };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/_teamId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  put: async ({ params, body }) => {\n    const team = await prismaClient.team.update({\n      where: { id: params.teamId },\n      data: {\n        name: body.name,\n      },\n    });\n    return { status: 200, body: team };\n  },\n  delete: async ({ params }) => {\n    await prismaClient.team.delete({\n      where: { id: params.teamId },\n    });\n    return { status: 204 };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/_teamId@string/stats/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const teamStats = await prismaClient.teamStats.findUniqueOrThrow({\n      where: { teamId: params.teamId },\n    });\n    return { status: 200, body: teamStats };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/private/teams/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  post: async ({ body }) => {\n    const team = await prismaClient.team.create({\n      data: {\n        name: body.name,\n      },\n    });\n    return { status: 201, body: team };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/public/teams/_teamId@string/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async ({ params }) => {\n    const team = await prismaClient.team.findUniqueOrThrow({\n      where: { id: params.teamId },\n    });\n    return { status: 200, body: team };\n  },\n}));\n"
+  },
+  {
+    "source": "server/api/public/teams/controller.ts",
+    "content": "import { prismaClient } from '$/service/prismaClient';\nimport { defineController } from './$relay';\n\nexport default defineController(() => ({\n  get: async () => {\n    const teams = await prismaClient.team.findMany();\n    return { status: 200, body: teams };\n  },\n}));\n"
   }
 ]
