@@ -9,24 +9,34 @@ export const AuthLoader = () => {
   const [user, setUser] = useAtom(userAtom);
 
   useEffect(() => {
+    const handleAuthStateChange = async (_, session) => {
+      if (session === null) {
+        if (user && user.id !== null) {
+          await apiClient.api.private.users._userId(user.id).$delete().catch(returnNull);
+          setUser(null);
+        }
+      } else {
+        if (user && user.id !== session.user.id) {
+          await updateUser(session);
+        }
+      }
+    };
+
+    const updateUser = async (session) => {
+      await apiClient.api.private.users
+        ._userId(session.user.id)
+        .$put({ body: { email: session.user.email, name: session.user.user_metadata.full_name } })
+        .catch(returnNull);
+      await apiClient.api.private.users
+        ._userId(session.user.id)
+        .$get()
+        .catch(returnNull)
+        .then(setUser);
+    };
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_, session) => {
-      if (session === null && user && user.id !== null) {
-        await apiClient.api.private.users._userId(user.id).$delete().catch(returnNull);
-        setUser(null);
-      } else if (session !== null && user && user.id !== session.user.id) {
-        await apiClient.api.private.users
-          ._userId(session.user.id)
-          .$put({ body: { email: session.user.email, name: session.user.user_metadata.full_name } })
-          .catch(returnNull);
-        await apiClient.api.private.users
-          ._userId(session.user.id)
-          .$get()
-          .catch(returnNull)
-          .then(setUser);
-      }
-    });
+    } = supabase.auth.onAuthStateChange(handleAuthStateChange);
 
     return () => {
       subscription.unsubscribe();
