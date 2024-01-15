@@ -8,35 +8,10 @@ generator client {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String       @unique
-  name        String
-  teams       Team[]
-  playerStats PlayerStat[]
+  id    String @id @default(uuid())
+  email String @unique
+  name  String
+  // 他のフィールドやリレーションをここに追加する
 }
 
-model Team {
-  id        String     @id @default(uuid())
-  name      String
-  players   User[]
-  teamStats TeamStat[]
-}
-
-model PlayerStat {
-  id             String @id @default(uuid())
-  userId         String
-  battingAverage Float
-  homeRuns       Int
-  runsBattedIn   Int
-  stolenBases    Int
-  user           User   @relation(fields: [userId], references: [id])
-}
-
-model TeamStat {
-  id     String @id @default(uuid())
-  teamId String
-  wins   Int
-  losses Int
-  ties   Int
-  team   Team   @relation(fields: [teamId], references: [id])
-}
+// 他のモデルをここに追加する
