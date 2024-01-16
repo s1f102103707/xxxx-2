@@ -8,26 +8,42 @@ import styles from './index.module.css';
 
 const Home = () => {
   const [user] = useAtom(userAtom);
-  const [users, setUsers] = useState<User[]>([]);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskContent, setTaskContent] = useState('');
 
-  const fetchUsers = async () => {
-    const fetchedUsers = await apiClient.api.public.users.$get();
-    setUsers(fetchedUsers);
+  const handleTaskTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => setTaskTitle(e.target.value);
+  const handleTaskContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setTaskContent(e.target.value);
+
+  const createTask = async () => {
+    if (!taskTitle) return;
+    await apiClient.private.tasks.$post({
+      body: {
+        title: taskTitle,
+        content: taskContent
+      }
+    });
+    setTaskTitle('');
+    setTaskContent('');
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   return (
     <>
       <BasicHeader user={user} />
       <div className={styles.container}>
-        <ul className={styles.users}>
-          {users.map((user) => (
-            <li key={user.id}>{user.name}</li>
-          ))}
-        </ul>
+        <div className={styles.createTask}>
+          <input
+            type="text"
+            placeholder="タスクのタイトル"
+            value={taskTitle}
+            onChange={handleTaskTitleChange}
+          />
+          <textarea
+            placeholder="タスクの内容"
+            value={taskContent}
+            onChange={handleTaskContentChange}
+          />
+          <button onClick={createTask}>タスクを作成</button>
+        </div>
       </div>
     </>
   );
